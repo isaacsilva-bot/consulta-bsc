@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta BSC — SPX</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+    <style>
+        :root {
+            --shopee-orange: #EE4D2D;
+            --shopee-dark: #D73211;
+            --shopee-light: #FFF0ED;
+            --bg: #F5F5F5;
+            --card: #FFFFFF;
+            --text: #222222;
+            --text-secondary: #666666;
+            --border: #E0E0E0;
+            --green: #27AE60;
+            --green-bg: #E8F8F0;
+            --amber: #F39C12;
+            --amber-bg: #FEF5E7;
+            --gray: #95A5A6;
+            --gray-bg: #F0F0F0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 20px rgba(0,0,0,0.12);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--shopee-orange), var(--shopee-dark));
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(238, 77, 45, 0.3);
+        }
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* MAIN CONTENT */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+
+        /* SEARCH CARD */
+        .search-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 24px;
+            margin: -30px auto 20px;
+            position: relative;
+            z-index: 10;
+        }
+        .search-card label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .search-row {
+            display: flex;
+            gap: 10px;
+        }
+        .search-row input {
+            flex: 1;
+            padding: 14px 16px;
+            font-size: 1.1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            letter-spacing: 1px;
+        }
+        .search-row input:focus {
+            border-color: var(--shopee-orange);
+            box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.15);
+        }
+        .search-row input::placeholder {
+            color: #bbb;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            letter-spacing: 0;
+        }
+        .search-row button {
+            padding: 14px 28px;
+            background: var(--shopee-orange);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+        .search-row button:hover { background: var(--shopee-dark); }
+        .search-row button:active { transform: scale(0.97); }
+
+        .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .remember-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--shopee-orange);
+            cursor: pointer;
+        }
+        .remember-row label { cursor: pointer; text-transform: none; font-weight: 400; margin-bottom: 0; }
+
+        .saved-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--green-bg);
+            color: var(--green);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* INFO BANNER */
+        .info-banner {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .info-banner.show { display: block; }
+
+        .agency-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .agency-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--shopee-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .agency-details h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .agency-details .dop-code {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* STATS ROW */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--shopee-orange);
+        }
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        .stat-card.green .stat-value { color: var(--green); }
+        .stat-card.amber .stat-value { color: var(--amber); }
+
+        /* TABLE */
+        .table-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .table-header {
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        thead th {
+            background: #FAFAFA;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #F0F0F0;
+            vertical-align: middle;
+        }
+        tbody tr:hover { background: #FAFAFA; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .pkg-code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8rem;
+            background: #F5F5F5;
+            padding: 4px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .badge-green {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+        .badge-amber {
+            background: var(--amber-bg);
+            color: var(--amber);
+        }
+        .badge-gray {
+            background: var(--gray-bg);
+            color: var(--gray);
+        }
+
+        .phone-link {
+            color: var(--shopee-orange);
+            text-decoration: none;
+            font-weight: 600;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.8rem;
+        }
+        .phone-link:hover { text-decoration: underline; }
+        .no-phone { color: #ccc; font-style: italic; }
+
+        /* EMPTY / INITIAL STATE */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-state .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .empty-state p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            max-width: 350px;
+            margin: 0 auto;
+        }
+
+        /* NOT FOUND STATE */
+        .not-found {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .not-found .nf-icon { font-size: 3rem; margin-bottom: 12px; }
+        .not-found h3 { color: var(--text); margin-bottom: 8px; }
+        .not-found p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        /* LOADING */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #eee;
+            border-top-color: var(--shopee-orange);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* DATA SOURCE INDICATOR */
+        .data-source {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .data-source .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        .dot-live { background: var(--green); }
+        .dot-static { background: var(--amber); }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.75rem;
+            color: #aaa;
+            margin-top: 20px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.3rem; }
+            .search-card { padding: 16px; }
+            .search-row { flex-direction: column; }
+            .search-row button { padding: 14px; }
+            .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .stat-card { padding: 12px 8px; }
+            .stat-card .stat-value { font-size: 1.4rem; }
+            table { font-size: 0.8rem; }
+            thead th, tbody td { padding: 10px 12px; }
+            .agency-info { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📦 Consulta BSC</h1>
+    <p>Consulte os pacotes sob gestão da sua DOP</p>
+</div>
+
+<div class="container">
+    <!-- Search -->
+    <div class="search-card">
+        <label for="dopInput">Código DOP</label>
+        <div class="search-row">
+            <input type="text" id="dopInput" placeholder="Ex: 7264" inputmode="numeric" autocomplete="off">
+            <button id="searchBtn" onclick="handleSearch()">🔍 Buscar</button>
+        </div>
+        <div class="remember-row">
+            <input type="checkbox" id="rememberCheck" checked>
+            <label for="rememberCheck">Lembrar meu código</label>
+            <span id="savedBadge" class="saved-badge" style="display:none">✓ Salvo</span>
+        </div>
+    </div>
+
+    <!-- Results area -->
+    <div id="results">
+        <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>Digite seu Código DOP</h3>
+            <p>Informe o código da sua DOP para visualizar os pacotes sob sua gestão.</p>
+        </div>
+    </div>
+
+    <div id="dataSource" class="data-source" style="display:none"></div>
+
+    <div class="footer">
+        SPX — Field Operations (Fleet) · FM · RJ2
+    </div>
+</div>
+
+<script>
+// ============================================================
+// EMBEDDED DATA (fallback when Google Sheets is not public)
+// ============================================================
+const EMBEDDED_DATA = [
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR268179669319E","Agata beltrao_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR266377813377N","Agata beltrao_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR269380467985G","Agata beltrao_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2686878945891","Agata beltrao_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2654494643821","Agata beltrao_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR264626463789D","Agata beltrao_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR262998528491X","Agata beltrao_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2623603213905","Ana Carolina Dos Santos Constantino_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR262317693686D","Ana Carolina Dos Santos Constantino_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR263447195125G","Ayrton Monteiro Vellani Chiara Camargo_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2639060613034","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR268716773471I","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2623847604117","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR264576251161K","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR265964824839K","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR267191841509P","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR269399949625U","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR269172112900O","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR261634735556N","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR265143439599G","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR264196675704B","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2677134179360","Barbara Souza Da Silva Conceição_","Agencia não solicitou código ao comprador.","5521978851475","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR268674962747L","Carlos Eduardo Nunes De Oliveira Ramalho_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["3658","ALEX SOUSA NEVES","BR260464552097J","Daniel Teodoro Rodrigues_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["1993","CASA DAS PISCINAS DE NILÓPOLIS LTDA","BR2670037362594","Daniele Santos Da Silva_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR262169052718L","Daniella Inácio Rossi_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7301","55.384.328 MICHEL ELIAS SANTOS DE OLIVEIRA","BR264865969452P","Déborah De Carvalho Martins_","Agencia não solicitou código ao comprador.","5521968422324","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7301","55.384.328 MICHEL ELIAS SANTOS DE OLIVEIRA","BR260334819699Z","Déborah De Carvalho Martins_","Agencia não solicitou código ao comprador.","5521968422324","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7190","KASA BEER LTDA","BR262849716946G","Drielle Vieira da Silva_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR265340703247I","Emanuelle Magalhães de Souza_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7985","CID SOUZA DE OLIVEIRA","BR2690886679427","Emely da Silva Januário_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR269596845877J","Flavia Regina_","Agencia não solicitou código ao comprador.","5521966077944","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR265765946696C","Genival Lucas da Silva_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2617738707074","Guilherme Augusto Duarte Borges_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR262477528053V","Guttemberg Vaz Da Silva Dabrowski_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["1799","46.489.752 UCHOA SOARES GOMES","BR264289694674R","Izaias Marinho Da Silva Santos Junior _","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR263830188214D","Joana Cristina Farias Da Silva_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR262933455776M","Joyce Nepomuceno Pureza_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["1439","DE PAULA MODAS","BR2611942518687","Jucileia Barboza De Oliveira_","Agencia não solicitou código ao comprador.","5521959088577","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1439","DE PAULA MODAS","BR269181647204C","Jucileia Barboza De Oliveira_","Agencia não solicitou código ao comprador.","5521959088577","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1439","DE PAULA MODAS","BR261546262498V","Jucileia Barboza De Oliveira_","Agencia não solicitou código ao comprador.","5521959088577","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR262821638747F","Julie Jurema Arteiro_","Agencia não solicitou código ao comprador.","5521990517362","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["3218","PAPELARIA ELLYON CAXIENSE LTDA ME","BR2646681857299","Larissa Carmo da Costa_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["3218","PAPELARIA ELLYON CAXIENSE LTDA ME","BR262418134145Y","Larissa Carmo da Costa_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["3218","PAPELARIA ELLYON CAXIENSE LTDA ME","BR266038402917U","Larissa Carmo da Costa_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR261245858523E","Leandro Mota Pereira_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR260712323326V","Leandro Mota Pereira_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR265149441185S","Leandro Mota Pereira_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2651605472617","Luana Morais Silva_","Agencia não solicitou código ao comprador.","5521992278629","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["2628","LUIS FERNANDO THEODORO NUNES 13220989721","BR2668982868140","Luciana Ribeiro Simiao Pereira_","Agencia não solicitou código ao comprador.","5521972090415","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR266011904279Y","Luciana Simião_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR265901291829J","Márcio Barbosa De Souza_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2673323791192","Márcio Barbosa De Souza_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2664848541908","Márcio Barbosa De Souza_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR268810420293X","Márcio Melo Sousa_","Agencia não solicitou código ao comprador.","5521964294909","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR268123972916U","Maria Marciana Matos_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR263827527050R","Maria Marciana Matos_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR262942881983M","Mariana Fernandes Da Silva_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2611883617661","Mario Toledo_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR266733229397J","Monique Cassia_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR2627395171470","Paulo César Dos Santos Pinho_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR268121691119U","Paulo Roberto Da Silva Ramos_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["5902","06.266.330 ALEXANDRE SILVA DE ALMEIDA","BR264233977300L","Samara Ferreira Neves _","Agencia não solicitou código ao comprador.","5521992679964","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR264405874515D","Sarah Adrine do Nascimento Santos Silva_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR267596828728T","Tamara silva da rocha_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["1439","DE PAULA MODAS","BR267120137766A","Tatiane De Brito Viana_","Agencia não solicitou código ao comprador.","5521964312004","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1439","DE PAULA MODAS","BR2667464467348","Tatiane De Brito Viana_","Agencia não solicitou código ao comprador.","5521964312004","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1439","DE PAULA MODAS","BR263562912774G","Tatiane De Brito Viana_","Agencia não solicitou código ao comprador.","5521964312004","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1439","DE PAULA MODAS","BR263855618906Z","Tatiane De Brito Viana_","Agencia não solicitou código ao comprador.","5521964312004","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1439","DE PAULA MODAS","BR268030820284D","Tatiane De Brito Viana_","Agencia não solicitou código ao comprador.","5521964312004","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1439","DE PAULA MODAS","BR2664238969992","Tatiane De Brito Viana_","Agencia não solicitou código ao comprador.","5521964312004","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1439","DE PAULA MODAS","BR263936000798H","Tatiane De Brito Viana_","Agencia não solicitou código ao comprador.","5521964312004","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["1871","L I P ALVES COMERCIO E DEPOSITO DE MERCADORIAS EM GERAL","BR265939233988F","Thamires Barbosa_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR266748017857D","Yuri Do Nascimento Guimaraes_","Agencia não solicitou código ao comprador.","","Em busca do telefone do comprador. Por favor, aguarde atualizações."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR260134586031Y","Zilene Lopes De Faria Dionísio_","Agencia não solicitou código ao comprador.","5521995812805","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR266194093003A","Zilene Lopes De Faria Dionísio_","Agencia não solicitou código ao comprador.","5521995812805","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR263963099106J","Zilene Lopes De Faria Dionísio_","Agencia não solicitou código ao comprador.","5521995812805","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
+  ["7264","53.486.336 JORGE WILLIAN SILVA","BR264867108708S","Zilene Lopes De Faria Dionísio_","Agencia não solicitou código ao comprador.","5521995812805","Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."]
+];
+
+const SHEET_ID = '1p0IHPneaj5v4VlrSbXkaSg5f9NSzBqT_qdUqu3A9Al0';
+
+// ============================================================
+// STATE
+// ============================================================
+let allData = [];
+let isLiveData = false;
+
+// ============================================================
+// DATA LOADING
+// ============================================================
+async function loadData() {
+    // Try live fetch from Google Sheets
+    try {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
+        const response = await fetch(url);
+        if (response.ok) {
+            const csv = await response.text();
+            const parsed = parseCSV(csv);
+            if (parsed.length > 1) {
+                allData = parsed.slice(1); // Remove header
+                isLiveData = true;
+                showDataSource(true);
+                return;
+            }
+        }
+    } catch (e) {
+        // Fallback to embedded data
+    }
+
+    // Fallback: use embedded data
+    allData = EMBEDDED_DATA;
+    isLiveData = false;
+    showDataSource(false);
+}
+
+function parseCSV(csv) {
+    const rows = [];
+    let current = '';
+    let inQuotes = false;
+    const lines = csv.split('\n');
+
+    for (const line of lines) {
+        if (!line.trim() && !inQuotes) continue;
+        current += (current ? '\n' : '') + line;
+
+        // Count quotes to check if we're inside a quoted field
+        const quoteCount = (current.match(/"/g) || []).length;
+        inQuotes = quoteCount % 2 !== 0;
+
+        if (!inQuotes) {
+            rows.push(parseCSVLine(current));
+            current = '';
+        }
+    }
+
+    return rows;
+}
+
+function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (inQuotes) {
+            if (char === '"' && line[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else if (char === '"') {
+                inQuotes = false;
+            } else {
+                current += char;
+            }
+        } else {
+            if (char === '"') {
+                inQuotes = true;
+            } else if (char === ',') {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+    }
+    result.push(current.trim());
+    return result;
+}
+
+function showDataSource(live) {
+    const el = document.getElementById('dataSource');
+    if (live) {
+        el.innerHTML = '<span class="dot dot-live"></span> Dados atualizados da planilha';
+    } else {
+        el.innerHTML = '<span class="dot dot-static"></span> Dados da última atualização';
+    }
+    el.style.display = 'block';
+}
+
+// ============================================================
+// SEARCH & DISPLAY
+// ============================================================
+function handleSearch() {
+    const input = document.getElementById('dopInput');
+    const code = input.value.trim();
+
+    if (!code) {
+        input.focus();
+        return;
+    }
+
+    // Save to localStorage if checkbox is checked
+    const remember = document.getElementById('rememberCheck').checked;
+    if (remember) {
+        localStorage.setItem('bsc_dop_code', code);
+        document.getElementById('savedBadge').style.display = 'inline-flex';
+    } else {
+        localStorage.removeItem('bsc_dop_code');
+        document.getElementById('savedBadge').style.display = 'none';
+    }
+
+    // Filter data
+    const matches = allData.filter(row => row[0] === code);
+    displayResults(code, matches);
+}
+
+function displayResults(code, matches) {
+    const container = document.getElementById('results');
+
+    if (matches.length === 0) {
+        container.innerHTML = `
+            <div class="not-found">
+                <div class="nf-icon">😕</div>
+                <h3>Nenhum pacote encontrado</h3>
+                <p>Não há registros para o Código DOP <strong>${escapeHtml(code)}</strong>. Verifique o código e tente novamente.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Get agency info
+    const agencyName = matches[0][1];
+    const totalPkgs = matches.length;
+    const withPhone = matches.filter(r => r[5] && r[5].trim()).length;
+    const withoutPhone = totalPkgs - withPhone;
+
+    let html = '';
+
+    // Agency info banner
+    html += `
+        <div class="info-banner show">
+            <div class="agency-info">
+                <div class="agency-icon">🏪</div>
+                <div class="agency-details">
+                    <h2>${escapeHtml(agencyName)}</h2>
+                    <span class="dop-code">DOP ${escapeHtml(code)}</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Stats
+    html += `
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">${totalPkgs}</div>
+                <div class="stat-label">Total Pacotes</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-value">${withPhone}</div>
+                <div class="stat-label">Com Telefone</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-value">${withoutPhone}</div>
+                <div class="stat-label">Sem Telefone</div>
+            </div>
+        </div>
+    `;
+
+    // Table
+    html += `
+        <div class="table-card">
+            <div class="table-header">📋 Pacotes sob gestão</div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Código do Pacote</th>
+                            <th>Comprador / Retirador</th>
+                            <th>Telefone</th>
+                            <th>Ação Necessária</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    `;
+
+    matches.forEach((row, idx) => {
+        const pkgCode = row[2] || '';
+        const buyer = (row[3] || '').replace(/_+$/, '');
+        const phone = row[5] || '';
+        const action = row[6] || '';
+
+        const phoneCell = phone
+            ? `<a href="tel:+${phone}" class="phone-link">${formatPhone(phone)}</a>`
+            : `<span class="no-phone">—</span>`;
+
+        let badgeClass = 'badge-gray';
+        let badgeText = action;
+        if (action.toLowerCase().includes('telefone dispon')) {
+            badgeClass = 'badge-green';
+            badgeText = '✅ Telefone disponível';
+        } else if (action.toLowerCase().includes('em busca')) {
+            badgeClass = 'badge-amber';
+            badgeText = '🔍 Em busca do telefone';
+        } else if (action.toLowerCase().includes('aguardando')) {
+            badgeClass = 'badge-gray';
+            badgeText = '⏳ Aguardando';
+        }
+
+        html += `
+            <tr>
+                <td>${idx + 1}</td>
+                <td><span class="pkg-code">${escapeHtml(pkgCode)}</span></td>
+                <td>${escapeHtml(buyer)}</td>
+                <td>${phoneCell}</td>
+                <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+            </tr>
+        `;
+    });
+
+    html += `
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+function formatPhone(phone) {
+    // Format: +55 (21) 97885-1475
+    const p = phone.replace(/\D/g, '');
+    if (p.length === 13 && p.startsWith('55')) {
+        return `+${p.slice(0,2)} (${p.slice(2,4)}) ${p.slice(4,9)}-${p.slice(9)}`;
+    }
+    return phone;
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+    // Show loading
+    document.getElementById('results').innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Carregando dados...</p>
+        </div>
+    `;
+
+    await loadData();
+
+    // Restore saved DOP code
+    const savedCode = localStorage.getItem('bsc_dop_code');
+    if (savedCode) {
+        document.getElementById('dopInput').value = savedCode;
+        document.getElementById('savedBadge').style.display = 'inline-flex';
+        handleSearch();
+    } else {
+        document.getElementById('results').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h3>Digite seu Código DOP</h3>
+                <p>Informe o código da sua DOP para visualizar os pacotes sob sua gestão.</p>
+            </div>
+        `;
+    }
+}
+
+// Enter key support
+document.getElementById('dopInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') handleSearch();
+});
+
+// Remember checkbox logic
+document.getElementById('rememberCheck').addEventListener('change', function() {
+    if (!this.checked) {
+        localStorage.removeItem('bsc_dop_code');
+        document.getElementById('savedBadge').style.display = 'none';
+    }
+});
+
+// Start
+init();
+</script>
+
+</body>
+</html>
