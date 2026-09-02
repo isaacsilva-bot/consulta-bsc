@@ -6,108 +6,131 @@
     <title>Consulta de Pacotes BSC</title>
     <style>
         :root {
-            --primary: #ee4d2d;
-            --primary-dark: #d03e1f;
-            --bg: #f5f5f5;
+            --shopee-orange: #ee4d2d;
+            --shopee-dark-orange: #d03e1f;
+            --bg-gray: #f5f5f5;
             --card-bg: #ffffff;
-            --text: #333333;
-            --border: #e0e0e0;
+            --text-dark: #333333;
+            --text-muted: #666666;
+            --border-color: #e0e0e0;
+            --green-bg: #e8f5e9;
+            --green-text: #2e7d32;
+            --amber-bg: #fff3e0;
+            --amber-text: #ed6c02;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            padding: 24px 16px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 960px;
             margin: 0 auto;
         }
 
-        .header {
+        /* HEADER & SEARCH CARD */
+        .app-header {
             background: var(--card-bg);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+            border-top: 5px solid var(--shopee-orange);
+        }
+
+        .app-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--shopee-orange);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
             margin-bottom: 20px;
         }
 
-        h1 {
-            margin: 0 0 8px 0;
-            font-size: 24px;
-            color: var(--primary);
-        }
-
-        .subtitle {
-            color: #666;
-            margin: 0 0 20px 0;
-            font-size: 14px;
-        }
-
-        .search-box {
+        .search-row {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
-        input[type="text"] {
+        .search-input {
             flex: 1;
-            min-width: 200px;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
+            min-width: 220px;
+            padding: 14px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
             font-size: 16px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s ease;
         }
 
-        input[type="text"]:focus {
-            border-color: var(--primary);
+        .search-input:focus {
+            border-color: var(--shopee-orange);
+            box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.15);
         }
 
-        button {
-            background-color: var(--primary);
-            color: white;
+        .btn-search {
+            background-color: var(--shopee-orange);
+            color: #ffffff;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s ease;
         }
 
-        button:hover {
-            background-color: var(--primary-dark);
+        .btn-search:hover {
+            background-color: var(--shopee-dark-orange);
         }
 
-        .options {
-            margin-top: 12px;
+        .options-row {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .remember-label {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
-            color: #555;
+            cursor: pointer;
         }
 
         .badge-saved {
             display: none;
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 2px 8px;
+            background: var(--green-bg);
+            color: var(--green-text);
+            padding: 4px 10px;
             border-radius: 12px;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .data-source {
-            display: none;
-            margin-top: 8px;
             font-size: 12px;
-            color: #777;
+            color: #888;
+            margin-top: 10px;
         }
 
         .dot {
@@ -115,75 +138,98 @@
             width: 8px;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 5px;
+            margin-right: 6px;
         }
-        .dot-live { background-color: #4caf50; }
-        .dot-static { background-color: #ff9800; }
+        .dot-static { background-color: var(--amber-text); }
 
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+        /* AGENCY BANNER */
+        .agency-card {
+            background: #ffffff;
+            padding: 20px 24px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border-left: 6px solid var(--shopee-orange);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .agency-icon {
+            font-size: 32px;
+            background: #fff0ed;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .agency-details h2 {
+            font-size: 18px;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .agency-details .dop-code {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* STATS DASHBOARD */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
             background: var(--card-bg);
-            padding: 16px;
-            border-radius: 10px;
+            padding: 18px;
+            border-radius: 12px;
             text-align: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color);
         }
 
         .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--shopee-orange);
+            line-height: 1.2;
         }
 
-        .stat-card.green .stat-value { color: #2e7d32; }
-        .stat-card.amber .stat-value { color: #ed6c02; }
+        .stat-card.green .stat-value { color: var(--green-text); }
+        .stat-card.amber .stat-value { color: var(--amber-text); }
 
         .stat-label {
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
-        }
-
-        .info-banner {
-            display: none;
-            background: var(--card-bg);
-            padding: 16px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--primary);
-        }
-
-        .info-banner.show { display: block; }
-
-        .agency-info h2 {
-            margin: 0;
-            font-size: 18px;
-        }
-
-        .dop-code {
             font-size: 13px;
-            color: #666;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 500;
         }
 
+        /* DATA TABLE CARD */
         .table-card {
             background: var(--card-bg);
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
-        .table-header {
-            padding: 16px 20px;
-            font-weight: bold;
-            border-bottom: 1px solid var(--border);
+        .table-header-title {
+            padding: 18px 24px;
+            font-size: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
             background: #fafafa;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .table-wrapper {
@@ -197,89 +243,127 @@
             font-size: 14px;
         }
 
-        th, td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
         th {
-            background: #f0f0f0;
+            background: #f8f9fa;
             color: #555;
             font-weight: 600;
+            padding: 14px 18px;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
         }
 
         tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #fdfdfd; }
 
-        .pkg-code {
+        .pkg-badge {
             font-family: monospace;
-            font-weight: bold;
+            font-weight: 700;
             background: #f0f0f0;
-            padding: 2px 6px;
-            border-radius: 4px;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
         }
 
-        .badge {
-            padding: 4px 8px;
+        .status-badge {
+            padding: 4px 10px;
             border-radius: 12px;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 600;
             display: inline-block;
+            margin-bottom: 4px;
         }
 
-        .badge-green { background: #e8f5e9; color: #2e7d32; }
-        .badge-amber { background: #fff3e0; color: #ed6c02; }
+        .status-badge.green { background: var(--green-bg); color: var(--green-text); }
+        .status-badge.amber { background: var(--amber-bg); color: var(--amber-text); }
 
-        .phone-link {
-            color: #2e7d32;
+        .phone-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--green-bg);
+            color: var(--green-text);
+            padding: 6px 12px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 13px;
+            transition: opacity 0.2s;
         }
 
-        .phone-link:hover { text-decoration: underline; }
+        .phone-btn:hover { opacity: 0.85; }
 
-        .no-phone { color: #999; font-style: italic; }
+        .no-phone {
+            color: #a0a0a0;
+            font-style: italic;
+            font-size: 13px;
+        }
 
+        /* EMPTY & NOT FOUND STATES */
         .empty-state, .not-found {
             text-align: center;
-            padding: 40px 20px;
+            padding: 48px 24px;
             background: var(--card-bg);
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color);
         }
 
-        .empty-icon, .nf-icon {
+        .state-icon {
             font-size: 48px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3, .not-found h3 {
+            font-size: 18px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p, .not-found p {
+            font-size: 14px;
+            color: var(--text-muted);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>Consulta de Pacotes Pendentes</h1>
-        <p class="subtitle">Digite abaixo o Código DOP para verificar pendências e ações necessárias.</p>
+    <div class="app-header">
+        <div class="app-title">
+            <span>📦</span> Consulta de Pacotes BSC
+        </div>
+        <p class="app-subtitle">Gerenciamento de pendências e ações operacionais por DOP</p>
         
-        <div class="search-box">
-            <input type="text" id="dopInput" placeholder="Ex: 7264" autocomplete="off">
-            <button onclick="handleSearch()">Buscar</button>
+        <div class="search-row">
+            <input type="text" id="dopInput" class="search-input" placeholder="Digite o Código DOP (ex: 7264)" autocomplete="off">
+            <button onclick="handleSearch()" class="btn-search">Buscar Pacotes</button>
         </div>
 
-        <div class="options">
-            <label>
-                <input type="checkbox" id="rememberCheck" checked> Lembrar este código DOP
+        <div class="options-row">
+            <label class="remember-label">
+                <input type="checkbox" id="rememberCheck" checked> Lembrar esta DOP no navegador
             </label>
-            <span id="savedBadge" class="badge-saved">Salvo no navegador</span>
+            <span id="savedBadge" class="badge-saved">DOP Salva</span>
         </div>
 
-        <div id="dataSource" class="data-source"></div>
+        <div id="dataSource" class="data-source">
+            <span class="dot dot-static"></span>Dados locais sincronizados (78 pacotes carregados)
+        </div>
     </div>
 
     <div id="results">
         <div class="empty-state">
-            <div class="empty-icon">🔍</div>
-            <h3>Digite seu Código DOP</h3>
-            <p>Informe o código da sua DOP para visualizar os pacotes sob sua gestão.</p>
+            <div class="state-icon">🔍</div>
+            <h3>Nenhum código pesquisado</h3>
+            <p>Informe o código da DOP acima para visualizar a lista de pacotes e contatos.</p>
         </div>
     </div>
 </div>
@@ -371,18 +455,6 @@ const EMBEDDED_DATA = [
 
 let allData = [];
 
-async function loadData() {
-    allData = EMBEDDED_DATA;
-    showDataSource(false);
-}
-
-function showDataSource(isLive) {
-    const ds = document.getElementById('dataSource');
-    if (!ds) return;
-    ds.style.display = 'block';
-    ds.innerHTML = '<span class="dot dot-static"></span>Exibindo dados locais atualizados';
-}
-
 function handleSearch() {
     const input = document.getElementById('dopInput');
     const dopCode = input.value.trim();
@@ -407,13 +479,12 @@ function handleSearch() {
 
 function renderResults(dopCode) {
     const resultsDiv = document.getElementById('results');
-    
-    const matches = allData.filter(row => row[0] && row[0].toString().trim() === dopCode);
+    const matches = EMBEDDED_DATA.filter(row => row[0] && row[0].toString().trim() === dopCode);
 
     if (matches.length === 0) {
         resultsDiv.innerHTML = `
             <div class="not-found">
-                <div class="nf-icon">⚠️</div>
+                <div class="state-icon">⚠️</div>
                 <h3>Nenhum pacote encontrado</h3>
                 <p>Não encontramos pendências ativas para o código DOP <strong>${escapeHtml(dopCode)}</strong>.</p>
             </div>
@@ -437,17 +508,18 @@ function renderResults(dopCode) {
     });
 
     let html = `
-        <div class="info-banner show">
-            <div class="agency-info">
+        <div class="agency-card">
+            <div class="agency-icon">🏢</div>
+            <div class="agency-details">
                 <h2>${escapeHtml(agencyName)}</h2>
-                <span class="dop-code">Código DOP: <strong>${escapeHtml(dopCode)}</strong></span>
+                <span class="dop-code">Código DOP registrado: <strong>${escapeHtml(dopCode)}</strong></span>
             </div>
         </div>
 
-        <div class="stats-row">
+        <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-value">${totalPackages}</div>
-                <div class="stat-label">Total Pacotes</div>
+                <div class="stat-label">Total de Pacotes</div>
             </div>
             <div class="stat-card green">
                 <div class="stat-value">${withPhone}</div>
@@ -460,18 +532,18 @@ function renderResults(dopCode) {
         </div>
 
         <div class="table-card">
-            <div class="table-header">
+            <div class="table-header-title">
                 📋 Lista de Pacotes Pendentes (${totalPackages})
             </div>
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
-                            <th>Pacote</th>
-                            <th>Comprador</th>
+                            <th>Código do Pacote</th>
+                            <th>Comprador / Retirador</th>
                             <th>Status / Motivo</th>
-                            <th>Telefone Contato</th>
-                            <th>Ação Recomendada</th>
+                            <th>Telefone</th>
+                            <th>Ação Necessária</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -485,21 +557,21 @@ function renderResults(dopCode) {
         const action = row[6] || '-';
 
         let phoneHtml = `<span class="no-phone">Indisponível</span>`;
-        let statusBadge = `<span class="badge badge-amber">Aguardando</span>`;
+        let statusBadge = `<span class="status-badge amber">Aguardando Código</span>`;
 
         if (phone && phone.length > 5) {
             const cleanPhone = phone.replace(/\D/g, '');
-            phoneHtml = `<a href="https://wa.me/${cleanPhone}" target="_blank" class="phone-link">📱 ${escapeHtml(phone)}</a>`;
-            statusBadge = `<span class="badge badge-green">Contato Disponível</span>`;
+            phoneHtml = `<a href="https://wa.me/${cleanPhone}" target="_blank" class="phone-btn">📱 ${escapeHtml(phone)}</a>`;
+            statusBadge = `<span class="status-badge green">Contato Disponível</span>`;
         }
 
         html += `
             <tr>
-                <td><span class="pkg-code">${escapeHtml(pkg)}</span></td>
+                <td><span class="pkg-badge">${escapeHtml(pkg)}</span></td>
                 <td><strong>${escapeHtml(buyer)}</strong></td>
                 <td>${statusBadge}<br><small style="color:#666">${escapeHtml(status)}</small></td>
                 <td>${phoneHtml}</td>
-                <td><small>${escapeHtml(action)}</small></td>
+                <td><small style="color:#444">${escapeHtml(action)}</small></td>
             </tr>
         `;
     });
@@ -519,7 +591,7 @@ function showEmptyState() {
     if (!resultsDiv) return;
     resultsDiv.innerHTML = `
         <div class="empty-state">
-            <div class="empty-icon">🔍</div>
+            <div class="state-icon">🔍</div>
             <h3>Digite seu Código DOP</h3>
             <p>Informe o código da sua DOP para visualizar os pacotes sob sua gestão.</p>
         </div>
@@ -537,7 +609,7 @@ function escapeHtml(text) {
         .replace(/'/g, "&#039;");
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('dopInput');
     const badge = document.getElementById('savedBadge');
     
@@ -546,8 +618,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (e.key === 'Enter') handleSearch();
         });
     }
-
-    await loadData();
 
     const savedDop = localStorage.getItem('bsc_saved_dop');
     if (savedDop && input) {
