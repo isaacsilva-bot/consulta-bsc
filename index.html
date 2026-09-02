@@ -1,6 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Pacotes BSC</title>
+    <style>
+        :root {
+            --primary: #ee4d2d;
+            --primary-dark: #d03e1f;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            color: #666;
+            margin: 0 0 20px 0;
+            font-size: 14px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .options {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .badge-saved {
+            display: none;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .data-source {
+            display: none;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .dot {
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .dot-live { background-color: #4caf50; }
+        .dot-static { background-color: #ff9800; }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-card.green .stat-value { color: #2e7d32; }
+        .stat-card.amber .stat-value { color: #ed6c02; }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .info-banner {
+            display: none;
+            background: var(--card-bg);
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary);
+        }
+
+        .info-banner.show { display: block; }
+
+        .agency-info h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .dop-code {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .table-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            font-weight: bold;
+            border-bottom: 1px solid var(--border);
+            background: #fafafa;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #f0f0f0;
+            color: #555;
+            font-weight: 600;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .pkg-code {
+            font-family: monospace;
+            font-weight: bold;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-green { background: #e8f5e9; color: #2e7d32; }
+        .badge-amber { background: #fff3e0; color: #ed6c02; }
+
+        .phone-link {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .phone-link:hover { text-decoration: underline; }
+
+        .no-phone { color: #999; font-style: italic; }
+
+        .empty-state, .not-found {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .empty-icon, .nf-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Consulta de Pacotes Pendentes</h1>
+        <p class="subtitle">Digite abaixo o Código DOP para verificar pendências e ações necessárias.</p>
+        
+        <div class="search-box">
+            <input type="text" id="dopInput" placeholder="Ex: 7264" autocomplete="off">
+            <button onclick="handleSearch()">Buscar</button>
+        </div>
+
+        <div class="options">
+            <label>
+                <input type="checkbox" id="rememberCheck" checked> Lembrar este código DOP
+            </label>
+            <span id="savedBadge" class="badge-saved">Salvo no navegador</span>
+        </div>
+
+        <div id="dataSource" class="data-source"></div>
+    </div>
+
+    <div id="results">
+        <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>Digite seu Código DOP</h3>
+            <p>Informe o código da sua DOP para visualizar os pacotes sob sua gestão.</p>
+        </div>
+    </div>
+</div>
+
 <script>
 // ============================================================
-// EMBEDDED DATA (FALLBACK LOCAL)
+// EMBEDDED DATA (78 REGISTROS ATUALIZADOS)
 // ============================================================
 const EMBEDDED_DATA = [
     ["7264", "53.486.336 JORGE WILLIAN SILVA", "BR268179669319E", "Agata beltrao_", "Agencia não solicitou código ao comprador.", "5521983333508", "Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."],
@@ -83,74 +369,20 @@ const EMBEDDED_DATA = [
     ["7264", "53.486.336 JORGE WILLIAN SILVA", "BR260270634624M", "Willams silvestre da silva santos", "Agencia não solicitou código ao comprador.", "5521983050162", "Telefone disponívels para a agencia entrar em contato com o comprado e solicitar o código."]
 ];
 
-// Global data array
 let allData = [];
-let isLiveData = false;
-
-// Google Sheets CSV Export URL
-const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vREUvMhG1fJ1N59XvXk8h0qSg/pub?output=csv';
 
 async function loadData() {
-    try {
-        const response = await fetch(SHEETS_CSV_URL);
-        if (response.ok) {
-            const csvText = await response.text();
-            allData = parseCSV(csvText);
-            // Ignore header row if present
-            if (allData.length > 0 && allData[0][0].toLowerCase().includes('código')) {
-                allData.shift();
-            }
-            isLiveData = true;
-            showDataSource(true);
-            return;
-        }
-    } catch (err) {
-        console.warn('Falha ao carregar Google Sheets, utilizando EMBEDDED_DATA:', err);
-    }
-
-    // Fallback: use embedded data
     allData = EMBEDDED_DATA;
-    isLiveData = false;
     showDataSource(false);
-}
-
-function parseCSV(text) {
-    const lines = text.split('\n');
-    return lines.map(line => {
-        let values = [];
-        let insideQuote = false;
-        let currentValue = '';
-        
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') {
-                insideQuote = !insideQuote;
-            } else if (char === ',' && !insideQuote) {
-                values.push(currentValue.trim().replace(/^"|"$/g, ''));
-                currentValue = '';
-            } else {
-                currentValue += char;
-            }
-        }
-        values.push(currentValue.trim().replace(/^"|"$/g, ''));
-        return values;
-    });
 }
 
 function showDataSource(isLive) {
     const ds = document.getElementById('dataSource');
     if (!ds) return;
     ds.style.display = 'block';
-    if (isLive) {
-        ds.innerHTML = '<span class="dot dot-live"></span>Dados atualizados em tempo real (Google Sheets)';
-    } else {
-        ds.innerHTML = '<span class="dot dot-static"></span>Exibindo dados locais (Modo Offline)';
-    }
+    ds.innerHTML = '<span class="dot dot-static"></span>Exibindo dados locais atualizados';
 }
 
-// ============================================================
-// SEARCH & RENDER
-// ============================================================
 function handleSearch() {
     const input = document.getElementById('dopInput');
     const dopCode = input.value.trim();
@@ -176,7 +408,6 @@ function handleSearch() {
 function renderResults(dopCode) {
     const resultsDiv = document.getElementById('results');
     
-    // Filter matching rows (Column 0 is DOP Code)
     const matches = allData.filter(row => row[0] && row[0].toString().trim() === dopCode);
 
     if (matches.length === 0) {
@@ -193,7 +424,6 @@ function renderResults(dopCode) {
     const agencyName = matches[0][1] || 'Agência não identificada';
     const totalPackages = matches.length;
     
-    // Count stats based on phone availability (Column 5)
     let withPhone = 0;
     let searchingPhone = 0;
 
@@ -209,11 +439,8 @@ function renderResults(dopCode) {
     let html = `
         <div class="info-banner show">
             <div class="agency-info">
-                <div class="agency-icon">🏢</div>
-                <div class="agency-details">
-                    <h2>${escapeHtml(agencyName)}</h2>
-                    <span class="dop-code">Código DOP: <strong>${escapeHtml(dopCode)}</strong></span>
-                </div>
+                <h2>${escapeHtml(agencyName)}</h2>
+                <span class="dop-code">Código DOP: <strong>${escapeHtml(dopCode)}</strong></span>
             </div>
         </div>
 
@@ -228,7 +455,7 @@ function renderResults(dopCode) {
             </div>
             <div class="stat-card amber">
                 <div class="stat-value">${searchingPhone}</div>
-                <div class="stat-label">Em Busca</div>
+                <div class="stat-label">Sem Telefone</div>
             </div>
         </div>
 
@@ -310,24 +537,18 @@ function escapeHtml(text) {
         .replace(/'/g, "&#039;");
 }
 
-// ============================================================
-// INITIALIZATION
-// ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
     const input = document.getElementById('dopInput');
     const badge = document.getElementById('savedBadge');
     
-    // Support enter key on input
     if (input) {
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSearch();
         });
     }
 
-    // Load Data
     await loadData();
 
-    // Check saved DOP in LocalStorage
     const savedDop = localStorage.getItem('bsc_saved_dop');
     if (savedDop && input) {
         input.value = savedDop;
